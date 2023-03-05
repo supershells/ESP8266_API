@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+  go:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - mongo
+    environment:
+      REDIS_HOST: redis
+    networks:
+      - network-good
+    command: ["./main"]
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes: 
+      - ./data/redis:/data
+      - ./config/redis.conf:/redis.conf
+    command: redis-server /redis.conf --requirepass p@ssw0rd
+    networks:
+      - network-good
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data/mongodata:/data/db
+    networks:
+      - network-good
+  mongo-express:
+    image: mongo-express:latest
+    ports:
+      - "8081:8081"
+    restart: always
+    networks:
+      - network-good
+
+networks:
+  network-good:
+    name: network-good
